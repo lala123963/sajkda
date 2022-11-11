@@ -32,13 +32,6 @@ from tools.send_msg import push
 from login.telecom_login import TelecomLogin
 from string import ascii_letters, digits
 
-phone = get_environ("TELECOM_PHONE")
-password = get_environ("TELECOM_PASSWORD")
-foods = int(float(get_environ("TELECOM_FOOD", 0, False)))
-if phone == "":
-    exit(0)
-if password == "":
-    print_now("电信服务密码未提供 只执行部分任务")
 
 
 class ChinaTelecom:
@@ -81,7 +74,8 @@ class ChinaTelecom:
                 split_text = text[(32 * i):(32 * (i + 1))]
                 encrypt_text += RSA_Encrypt(self.key).encrypt(split_text)
             return encrypt_text
-    def geneRandomToken(self):
+    @staticmethod
+    def geneRandomToken():
         randomList = choices(ascii_letters + digits, k=129)
         token = f"V1.0{''.join(x for x in randomList)}"
         return token
@@ -375,4 +369,11 @@ class ChinaTelecom:
 
 
 if __name__ == "__main__":
+    phone = get_environ("TELECOM_PHONE")
+    password = get_environ("TELECOM_PASSWORD")
+    foods = int(float(get_environ("TELECOM_FOOD", 0, False)))
+    if phone == "":
+        exit(0)
+    if password == "":
+        print_now("电信服务密码未提供 只执行部分任务")
     ChinaTelecom(phone, password).main()
