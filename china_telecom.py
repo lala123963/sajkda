@@ -17,20 +17,20 @@
 """
 update:
     2022.10.25 参考大佬 github@QGCliveDavis https://github.com/QGCliveDavis 的 loginAuthCipherAsymmertric 参数解密 新增app登录获取token 完成星播客系列任务 感谢大佬
+    2022.11.11 增加分享任务
 """
 from datetime import date, datetime
-from json import dumps
-from random import shuffle, randint
+from random import shuffle, randint, choices
 from time import sleep
 from re import findall
 from requests import get, post
 from base64 import b64encode
-
 from tools.aes_encrypt import AES_Ctypt
 from tools.rsa_encrypt import RSA_Encrypt
 from tools.tool import timestamp, get_environ, print_now
 from tools.send_msg import push
 from login.telecom_login import TelecomLogin
+from string import ascii_letters, digits
 
 phone = get_environ("TELECOM_PHONE")
 password = get_environ("TELECOM_PASSWORD")
@@ -45,8 +45,11 @@ class ChinaTelecom:
     def __init__(self, account, pwd):
         self.phone = account
         self.ticket = ""
+        self.token = ""
         if pwd != "":
-            self.ticket = TelecomLogin(account, pwd).main()
+            userLoginInfo = TelecomLogin(account, pwd).main()
+            self.ticket = userLoginInfo[0]
+            self.token = userLoginInfo[1]
 
     def init(self):
         self.msg = ""
@@ -78,7 +81,10 @@ class ChinaTelecom:
                 split_text = text[(32 * i):(32 * (i + 1))]
                 encrypt_text += RSA_Encrypt(self.key).encrypt(split_text)
             return encrypt_text
-
+    def geneRandomToken(self):
+        randomList = choices(ascii_letters + digits, k=129)
+        token = f"V1.0{''.join(x for x in randomList)}"
+        return token
     # 签到
     def chech_in(self):
         url = "https://wapside.189.cn:9001/jt-sign/api/home/sign"
@@ -299,6 +305,47 @@ class ChinaTelecom:
                 print(f"完成观看直播任务失败,原因是{data['msg']}")
         else:
             print(f"初始化观看直播任务失败，失败原因为{data['msg']}")
+
+    def get_userid(self):
+        url = "https://wapside.189.cn:9001/jt-sign/api/home/homeInfo"
+        body = {
+            "para": self.telecom_encrypt(f'{{"phone":"{self.phone}","signDate":"{datetime.now().__format__("%Y-%m")}"}}')
+        }
+        userid = post(url, json=body).json()["data"]["userInfo"]["userThirdId"]
+        return userid
+    def share(self):
+        """
+        50的分享任务 token不做校检 有值即可 若登录成功了 使用自己的token 否则生成随机的token
+        :return:
+        """
+        url = "https://appfuwu.189.cn:9021/query/sharingGetGold"
+        body = {
+            "headerInfos": {
+                "code": "sharingGetGold",
+                "timestamp": datetime.now().__format__("%Y%m%d%H%M%S"),
+                "broadAccount": "",
+                "broadToken": "",
+                "clientType": "#9.6.1#channel50#iPhone 14 Pro Max#",
+                "shopId": "20002",
+                "source": "110003",
+                "sourcePassword": "Sid98s",
+                "token": self.token if self.token != "" else self.geneRandomToken(),
+                "userLoginName": self.phone
+            },
+            "content": {
+                "attach": "test",
+                "fieldData": {
+                    "shareSource": "3",
+                    "userId": self.get_userid(),
+                    "account": TelecomLogin.get_phoneNum(self.phone)
+                }
+            }
+        }
+        headers = {
+            "user-agent": "iPhone 14 Pro Max/9.6.1"
+        }
+        data = post(url, headers=headers, json=body).json()
+        print_now(data)
     def main(self):
         self.init()
         self.chech_in()
@@ -310,6 +357,7 @@ class ChinaTelecom:
         self.convert_reward()
         if datetime.now().day == 1:
             self.get_level()
+        self.share()
         if self.ticket != "":
             self.author()
             for i in range(6):
