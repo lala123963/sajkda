@@ -23,6 +23,7 @@ from base64 import b64encode
 from asyncio import get_event_loop, wait, sleep, run
 
 from tools.tool import timestamp, get_environ, print_now
+from tools.send_msg import push
 from china_telecom import ChinaTelecom
 
 class TelecomLotter:
@@ -151,6 +152,8 @@ class TelecomLotter:
             }
             data = post(url, headers=headers, json=body).json()
             print(data)
+            if data["code"] == 0:
+                push("直播抽奖", f"获得了{data['data']['title']}")
 
 def main(phone, password):
     url = "https://xbk.189.cn/xbkapi/lteration/index/recommend/anchorRecommend?provinceCode=21"
