@@ -3,9 +3,9 @@
 # -------------------------------
 # @Author : github@limoruirui https://github.com/limoruirui
 # @Time : 2022/11/11 10:42
-# -------------------------------
-# cron "*/30 10-20 * * *"
+# cron "*/30 8-20 * * *" script-path=xxx.py,tag=匹配cron用
 # const $ = new Env('某营业厅直播抽奖');
+# -------------------------------
 """
 1. 脚本仅供学习交流使用, 请在下载后24h内删除
 2. 环境变量说明:
@@ -153,7 +153,7 @@ class TelecomLotter:
             data = post(url, headers=headers, json=body).json()
             print(data)
             if data["code"] == 0:
-                push("直播抽奖", f"获得了{data['data']['title']}")
+                push("直播抽奖", f"{self.phone}: 获得了{data['data']['title']}")
 
 def main(phone, password):
     url = "https://xbk.189.cn/xbkapi/lteration/index/recommend/anchorRecommend?provinceCode=21"
