@@ -14,6 +14,8 @@
 3. 必须登录过 电信营业厅 app的账号才能正常运行
 """
 from re import findall
+from random import randint
+from base64 import b64encode
 from time import mktime, strptime, strftime, sleep as time_sleep
 from requests import post, get, packages
 packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ":HIGH:!DH:!aNULL"
@@ -155,18 +157,27 @@ class TelecomLotter:
                 push("直播抽奖", f"{self.phone}: 获得了{data['data']['title']}")
 
 def main(phone, password):
-    # url = "https://xbk.189.cn/xbkapi/lteration/index/recommend/anchorRecommend?provinceCode=21"
-    # random_phone = f"1537266{randint(1000, 9999)}"
-    # headers = {
-    #     "referer": "https://xbk.189.cn/xbk/newHome?version=9.4.0&yjz=no&l=card&longitude=%24longitude%24&latitude=%24latitude%24&utm_ch=hg_app&utm_sch=hg_sh_shdbcdl&utm_as=xbk_tj&loginType=1",
-    #     "user-agent": f"CtClient;9.6.1;Android;12;SM-G9860;{b64encode(random_phone[5:11].encode()).decode().strip('=+')}!#!{b64encode(random_phone[0:5].encode()).decode().strip('=+')}"
-    # }
-    # data = get(url, headers=headers).json()
-    url = "https://api.ruirui.fun/telecom/getLiveInfo"
-    data = get(url).json()
-    # print(data)
+    apiType = 1
+    try:
+        url = "https://api.ruirui.fun/telecom/getLiveInfo"
+        data = get(url, timeout=5).json()
+    except:
+        try:
+            url = "https://raw.githubusercontent.com/limoruirui/Hello-Wolrd/main/telecomLiveInfo.json"
+            data = get(url, timeout=5).json()
+        except:
+            url = "https://xbk.189.cn/xbkapi/lteration/index/recommend/anchorRecommend?provinceCode=01"
+            random_phone = f"1537266{randint(1000, 9999)}"
+            headers = {
+                "referer": "https://xbk.189.cn/xbk/newHome?version=9.4.0&yjz=no&l=card&longitude=%24longitude%24&latitude=%24latitude%24&utm_ch=hg_app&utm_sch=hg_sh_shdbcdl&utm_as=xbk_tj&loginType=1",
+                "user-agent": f"CtClient;9.6.1;Android;12;SM-G9860;{b64encode(random_phone[5:11].encode()).decode().strip('=+')}!#!{b64encode(random_phone[0:5].encode()).decode().strip('=+')}"
+            }
+            data = get(url, headers=headers).json()
+            apiType = 2
+    print(data)
     liveListInfo = {}
-    for liveInfo in data.values():
+    allLiveInfo = data.values() if apiType == 1 else data["data"]
+    for liveInfo in allLiveInfo:
         if 1740 > timestamp(True) - int(mktime(strptime(liveInfo["start_time"], "%Y-%m-%d %H:%M:%S"))) + (
                 8 - int(strftime("%z")[2])) * 3600 > 0:
             liveListInfo[liveInfo["liveId"]] = liveInfo["period"]
@@ -182,6 +193,6 @@ if __name__ == '__main__':
     password = get_environ("TELECOM_PASSWORD")
     if phone == "" or password == "":
         print("未填写相应变量 退出")
-        exit(0)
+        # exit(0)
     main(phone, password)
 
