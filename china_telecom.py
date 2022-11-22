@@ -191,7 +191,12 @@ class ChinaTelecom:
                 f'{{"phone":"{self.phone}","rewardId":"{rewardId}","month":"{date.today().__format__("%Y%m")}"}}')
         }
         for i in range(10):
-            data = self.req(url, "post", body)
+            try:
+                data = self.req(url, "post", body)
+            except Exception as e:
+                print(f"请求发送失败: " + str(e))
+                sleep(6)
+                continue
             print_now(data)
             if data["code"] == "0":
                 break
