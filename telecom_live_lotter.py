@@ -19,7 +19,7 @@ from base64 import b64encode
 from time import mktime, strptime, strftime, sleep as time_sleep
 from requests import post, get, packages
 packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ":HIGH:!DH:!aNULL"
-from datetime import datetime
+from datetime import datetime, timedelta
 from asyncio import wait, sleep, run
 
 from tools.tool import timestamp, get_environ, print_now
@@ -155,6 +155,22 @@ class TelecomLotter:
             time_sleep(10)
             if data["code"] == 0:
                 push("直播抽奖", f"{self.phone}: 获得了{data['data']['title']}")
+    def find_price(self):
+        url = "https://xbk.189.cn/xbkapi/active/v2/lottery/getMyWinList?page=1&give_status=200&activeCode="
+        headers = {
+            "User-Agent": self.ua,
+            "authorization": self.authorization
+        }
+        data = get(url, headers=headers).json()
+        if data["code"] == 0:
+            all_price_list = data["data"]
+            compare_date = lambda date: date.split("-")[1] == str((datetime.now() + timedelta(hours=8 - int(strftime("%z")[2]))).month)
+            month_price = [f'{info["win_time"]}: {info["title"]}' for info in all_price_list if compare_date(info["win_time"])]
+            month_price_info = "\n".join(month_price)
+            print(month_price_info)
+            push("本月直播奖品查询", f"{self.phone}:\n{month_price_info}")
+        else:
+            print(f"获取奖品信息失败, 接口返回" + str(data))
 
 def main(phone, password):
     apiType = 1
@@ -187,12 +203,15 @@ def main(phone, password):
         telecomLotter = TelecomLotter(phone, password)
         all_task = [telecomLotter.lotter(liveId, period) for liveId, period in liveListInfo.items()]
         run(wait(all_task))
+    now = datetime.now()
+    if now.hour == 12 + int(strftime("%z")[2]) and now.minute > 10:
+        TelecomLotter(phone, password).find_price()
 
 if __name__ == '__main__':
     phone = get_environ("TELECOM_PHONE")
     password = get_environ("TELECOM_PASSWORD")
     if phone == "" or password == "":
         print("未填写相应变量 退出")
-        # exit(0)
+        exit(0)
     main(phone, password)
 
