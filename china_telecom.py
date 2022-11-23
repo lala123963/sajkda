@@ -1,26 +1,26 @@
 #!/usr/bin/python3
 # -- coding: utf-8 --
 # -------------------------------
-# @Author : github@limoruirui https://github.com/limoruirui
+# @Author : github@limoruirui https://github.com/limoruirui  by院长修改
 # @Time : 2022/9/12 16:10
 # cron "1 9,12 * * *" script-path=xxx.py,tag=匹配cron用
 # const $ = new Env('电信签到');
 # -------------------------------
 
 """
-1. 电信签到 不需要抓包 脚本仅供学习交流使用, 请在下载后24h内删除
+1. 电信签到 支持多账号执行 不需要抓包 脚本仅供学习交流使用, 请在下载后24h内删除
 2. cron说明 12点必须执行一次(用于兑换) 然后12点之外还需要执行一次(用于执行每日任务) 一天共两次 可直接使用默认cron
-2. 环境变量说明:
-    必须  TELECOM_PHONE : 电信手机号
-    选填  TELECOM_PASSWORD : 电信服务密码 填写后会执行更多任务
+3. 环境变量说明:
+    变量名(必须)：  TELECOM_PHONE_PASSWORD  格式： 手机号&服务密码，1317xxx1322&123456
     选填  TELECOM_FOOD  : 给宠物喂食次数 默认为0 不喂食 根据用户在网时长 每天可以喂食5-10次
-3. 必须登录过 电信营业厅 app的账号才能正常运行
+4. 必须登录过 电信营业厅 app的账号才能正常运行
 """
 """
 update:
     2022.10.25 参考大佬 github@QGCliveDavis https://github.com/QGCliveDavis 的 loginAuthCipherAsymmertric 参数解密 新增app登录获取token 完成星播客系列任务 感谢大佬
     2022.11.11 增加分享任务
 """
+import re
 from datetime import date, datetime
 from random import shuffle, randint, choices
 from time import sleep, strftime
@@ -30,6 +30,7 @@ from base64 import b64encode
 from tools.aes_encrypt import AES_Ctypt
 from tools.rsa_encrypt import RSA_Encrypt
 from tools.tool import timestamp, get_environ, print_now
+from tools.ql_api import get_envs, disable_env, post_envs, put_envs
 from tools.send_msg import push
 from login.telecom_login import TelecomLogin
 from string import ascii_letters, digits
@@ -390,18 +391,36 @@ class ChinaTelecom:
         return False
 
 
+#获取ck
+def get_cookie():
+    ck_list = []
+    pin = "null"
+    cookie = None
+    cookies = get_envs("TELECOM_PHONE_PASSWORD")
+    for ck in cookies:
+        if ck.get('status') == 0:
+            ck_list.append(ck.get('value'))
+    if len(ck_list) < 1:
+        print('共配置{}条CK,请添加环境变量,或查看环境变量状态'.format(len(ck_list)))
+    return ck_list 
+
 if __name__ == "__main__":
-    phone = get_environ("TELECOM_PHONE")
-    password = get_environ("TELECOM_PASSWORD")
+    user_map = get_cookie()
     foods = int(float(get_environ("TELECOM_FOOD", 0, False)))
-    if phone == "":
-        exit(0)
-    if password == "":
-        print_now("电信服务密码未提供 只执行部分任务")
-    if datetime.now().hour + (8 - int(strftime("%z")[2])) == 12:
-        telecom = ChinaTelecom(phone, password, False)
-        telecom.init()
-        telecom.convert_reward()
-    else:
-        telecom = ChinaTelecom(phone, password)
-        telecom.main()
+    for i in range(len(user_map)):
+        phone = re.findall(r'(.+?)&', user_map[i],re.DOTALL)[0]
+        password = re.findall(r'&(.+?)', user_map[i],re.DOTALL)[0]
+        print('开始执行第{}个账号：{}'.format((i+1),phone))
+        if phone == "":
+            exit(0)
+        if password == "":
+            print_now("电信服务密码未提供 只执行部分任务")
+        if datetime.now().hour + (8 - int(strftime("%z")[2])) == 12:
+            telecom = ChinaTelecom(phone, password, False)
+            telecom.init()
+            telecom.convert_reward()
+        else:
+            telecom = ChinaTelecom(phone, password)
+            telecom.main()
+        print("\n")
+        print("\n")
