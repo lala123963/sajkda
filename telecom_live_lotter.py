@@ -13,7 +13,7 @@
     必须  TELECOM_PASSWORD : 电信服务密码
 3. 必须登录过 电信营业厅 app的账号才能正常运行
 """
-from re
+import re
 from random import randint
 from base64 import b64encode
 from time import mktime, strptime, strftime, sleep as time_sleep
