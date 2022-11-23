@@ -21,6 +21,7 @@ from requests import post, get, packages
 packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ":HIGH:!DH:!aNULL"
 from datetime import datetime, timedelta
 from asyncio import wait, sleep, run
+from ql_api import get_envs, disable_env, post_envs, put_envs
 
 from tools.tool import timestamp, get_environ, print_now
 from tools.send_msg import push
@@ -207,11 +208,27 @@ def main(phone, password):
     if now.hour == 12 + int(strftime("%z")[2]) and now.minute > 10:
         TelecomLotter(phone, password).find_price()
 
+#获取ck
+def get_cookie():
+    ck_list = []
+    pin = "null"
+    cookie = None
+    cookies = get_envs("TELECOM_PHONE_PASSWORD")
+    for ck in cookies:
+        if ck.get('status') == 0:
+            ck_list.append(ck.get('value'))
+    if len(ck_list) < 1:
+        print('共配置{}条CK,请添加环境变量,或查看环境变量状态'.format(len(ck_list)))
+    return ck_list 
+
 if __name__ == '__main__':
-    phone = get_environ("TELECOM_PHONE")
-    password = get_environ("TELECOM_PASSWORD")
-    if phone == "" or password == "":
-        print("未填写相应变量 退出")
-        exit(0)
-    main(phone, password)
+    user_map = get_cookie()
+    for i in range(len(user_map)):
+        phone = re.findall(r'(.+?)&', user_map[i],re.DOTALL)[0]
+        password = re.findall(r'&(.+?)', user_map[i],re.DOTALL)[0]
+        print('执行账号：{}'.format(phone))
+        if phone == "" or password == "":
+            print("未填写相应变量 退出")
+            exit(0)
+        main(phone, password)
 
