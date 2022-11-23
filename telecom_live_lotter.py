@@ -226,9 +226,10 @@ if __name__ == '__main__':
     for i in range(len(user_map)):
         phone = re.findall(r'(.+?)&', user_map[i],re.DOTALL)[0]
         password = re.findall(r'&(.+?)', user_map[i],re.DOTALL)[0]
-        print('\n开始执行第{}个账号：{}'.format(i,phone))
+        print('开始执行第{}个账号：{}'.format((i+1),phone))
         if phone == "" or password == "":
             print("未填写相应变量 退出")
             exit(0)
         main(phone, password)
+        print("\n")
 
