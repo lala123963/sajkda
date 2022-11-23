@@ -1,3 +1,5 @@
+# 原仓库来源limoruirui/misaka，本仓库仅做修改
+
 # misaka
 - 随缘维护和上传, 请不要上传或者转载到其它地方。
 - 本仓库脚本仅供用于学习及参考对应web/app的参数解密并提供对应demo用于测试,请不要询问如何多账号等
@@ -8,7 +10,7 @@
 - 拉取整个仓库(部分文件可以单独跑)
   ```
   // 以下几条命令 请不要带着 $/# 一起复制 这两个符号只是代表了所需权限
-  $ git clone https://github.com/limoruirui/misaka
+  $ git clone https://github.com/yuanter/misaka
 - 安装依赖
   ```
   $ pip3 install -r requirements.txt
@@ -25,9 +27,9 @@
 ### 二. 青龙面板
 - 拉取仓库
   ```
-  ql repo https://github.com/limoruirui/misaka.git "" "backUp|tools|JS|logs|login"  "tools|JS|logs|login"
+  ql repo https://github.com/yuanter/misaka.git "" "backUp|tools|JS|logs|login"  "tools|JS|logs|login"
   国内服务器太卡的话用下面这个
-  ql repo https://github.ruirui.fun/https://github.com/limoruirui/misaka.git "" "backUp|tools|JS|logs|login"  "tools|JS|logs|login"
+  ql repo https://github.ruirui.fun/https://github.com/yuanter/misaka.git "" "backUp|tools|JS|logs|login"  "tools|JS|logs|login"
 - 安装依赖
   ```
   安装依赖时失败时 如果日志内有提示 gcc not found 的关键字 则进入docker容器中 依次执行
@@ -40,7 +42,7 @@
   
   第二种方法: 进入容器中 依次执行
   $ cd data/scripts/limoruirui_misaka
-  $ wget https://raw.githubusercontent.com/limoruirui/misaka/master/requirements.txt
+  $ wget https://raw.githubusercontent.com/yuanter/misaka/master/requirements.txt
   $ pip3 install -r requirements.txt
 - 按照脚本文件内的说明设置环境变量
 ## 环境变量说明 
