@@ -1,16 +1,16 @@
 #!/usr/bin/python3
 # -- coding: utf-8 --
 # -------------------------------
-# @Author : github@limoruirui https://github.com/limoruirui
+# @Author : github@limoruirui https://github.com/limoruirui  by院长修改
 # @Time : 2022/11/11 10:42
-# cron "*/30 8-20 * * *" script-path=xxx.py,tag=匹配cron用
+# cron "*/30 8-23 * * *" script-path=xxx.py,tag=匹配cron用
 # const $ = new Env('某营业厅直播抽奖');
 # -------------------------------
 """
 1. 脚本仅供学习交流使用, 请在下载后24h内删除
 2. 环境变量说明:
-    必须  TELECOM_PHONE : 电信手机号
-    必须  TELECOM_PASSWORD : 电信服务密码
+   变量名(必须)：  TELECOM_PHONE_PASSWORD
+   格式： 手机号&服务密码，1317xxx1322&123456
 3. 必须登录过 电信营业厅 app的账号才能正常运行
 """
 import re
