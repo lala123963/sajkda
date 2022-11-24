@@ -60,8 +60,10 @@
     - PHONE_NUM 手机号码 (必须)
     - UNICOM_LOTTER 是否自动抽奖 (选填 True | False, 默认为是)
   - 2. 电信营业厅app(china_telecom.py)
-    - TELECOM_PHONE 手机号码 (必须)
-    - TELECOM_PASSWORD 电信服务密码 (选择)
+    - TELECOM_PHONE_PASSWORD 手机号码&服务密码
+    - 例如 131785xxx98&123456  或者 131785xxx98&
+    - 手机号码 (必须)
+    - 电信服务密码 (选择)
     - TELECOM_FOOD 宠物喂食次数 (选择)
   - 3. iqiyi(iqiyi.py & iqiyiRed.py)
     - iqy_ck 爱奇艺cookie 可整段 也可只保留P00001=xxx; (必须)
