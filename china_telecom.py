@@ -58,14 +58,22 @@ class ChinaTelecom:
         self.key = "-----BEGIN PUBLIC KEY-----\nMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQC+ugG5A8cZ3FqUKDwM57GM4io6\nJGcStivT8UdGt67PEOihLZTw3P7371+N47PrmsCpnTRzbTgcupKtUv8ImZalYk65\ndU8rjC/ridwhw9ffW2LBwvkEnDkkKKRi2liWIItDftJVBiWOh17o6gfbPoNrWORc\nAdcbpk2L+udld5kZNwIDAQAB\n-----END PUBLIC KEY-----"
 
     def req(self, url, method, data=None):
-        if method == "GET":
-            data = get(url, headers=self.headers).json()
-            return data
-        elif method.upper() == "POST":
-            data = post(url, headers=self.headers, json=data).json()
-            return data
-        else:
-            print_now("您当前使用的请求方式有误,请检查")
+        re_try = 3
+        while re_try > 0:
+            try:
+                if method == "GET":
+                    data = get(url, headers=self.headers).json()
+                    return data
+                elif method.upper() == "POST":
+                    data = post(url, headers=self.headers, json=data).json()
+                    return data
+                else:
+                    print_now("您当前使用的请求方式有误,请检查")
+                break
+            except:
+                re_try -= 1
+                sleep(5)
+                continue
 
     # 长明文分段rsa加密
     def telecom_encrypt(self, text):
@@ -318,7 +326,7 @@ class ChinaTelecom:
         body = {
             "para": self.telecom_encrypt(f'{{"phone":"{self.phone}","signDate":"{datetime.now().__format__("%Y-%m")}"}}')
         }
-        userid = post(url, json=body).json()["data"]["userInfo"]["userThirdId"]
+        userid = post(url, json=body, headers=self.headers).json()["data"]["userInfo"]["userThirdId"]
         return userid
     def share(self):
         """
@@ -370,7 +378,7 @@ class ChinaTelecom:
             for i in range(6):
                 self.watch_video()
                 sleep(15)
-            self.like()
+            # self.like()
             for i in range(10):
                 try:
                     self.watch_live()
@@ -414,7 +422,7 @@ if __name__ == "__main__":
         if len(userinfo)>1:
             phone = userinfo[0]
             password = userinfo[1]
-        print('开始执行第{}个账号：{},密码：{}'.format((i+1),phone,password))
+        print('开始执行第{}个账号：{}'.format((i+1),phone))
         if phone == "":
             exit(0)
         if password == "":
