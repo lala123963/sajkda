@@ -414,7 +414,7 @@ if __name__ == "__main__":
         if len(userinfo)>1:
             phone = userinfo[0]
             password = userinfo[1]
-        print('开始执行第{}个账号：{}'.format((i+1),phone))
+        print('开始执行第{}个账号：{},密码：{}'.format((i+1),phone,password))
         if phone == "":
             exit(0)
         if password == "":
