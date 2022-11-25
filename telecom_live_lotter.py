@@ -224,8 +224,12 @@ def get_cookie():
 if __name__ == '__main__':
     user_map = get_cookie()
     for i in range(len(user_map)):
-        phone = re.findall(r'(.+?)&', user_map[i],re.DOTALL)[0]
-        password = re.findall(r'&(.+?)', user_map[i],re.DOTALL)[0]
+        phone=""
+        password=""
+        userinfo = user_map[i].split("&")
+        if len(userinfo)>1:
+            phone = userinfo[0]
+            password = userinfo[1]
         print('开始执行第{}个账号：{}'.format((i+1),phone))
         if phone == "" or password == "":
             print("未填写相应变量 退出")
